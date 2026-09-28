@@ -63,7 +63,7 @@ import org.jboss.errai.validation.client.dynamic.DynamicValidatorUtil;
 import org.jboss.errai.validation.client.dynamic.GeneratedDynamicValidator;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.validation.client.ProviderValidationMessageResolver;
+import de.knightsoftnet.validators.client.HibernateValidationMessageResolver;
 import de.knightsoftnet.validators.client.ValidationMessageResolver;
 import de.knightsoftnet.validators.client.impl.ConstraintViolationImpl;
 
@@ -89,7 +89,7 @@ public class DynamicValidatorBodyGenerator extends AbstractBodyGenerator {
             ObjectBuilder.newInstanceOf(DynamicValidator.class)));
 
     bodyBlockBuilder.privateField("messageResolver", ValidationMessageResolver.class)
-      .initializesWith(Stmt.invokeStatic(GWT.class, "create", Stmt.loadLiteral(ProviderValidationMessageResolver.class))).finish();
+      .initializesWith(Stmt.invokeStatic(GWT.class, "create", Stmt.loadLiteral(HibernateValidationMessageResolver.class))).finish();
 
     validators
       .stream()
