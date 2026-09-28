@@ -90,9 +90,10 @@ public class DynamicValidatorBodyGenerator extends AbstractBodyGenerator {
 
     bodyBlockBuilder.privateField("messageResolver", ValidationMessageResolver.class)
       .initializesWith(Stmt.invokeStatic(GWT.class, "create", Stmt.loadLiteral(ProviderValidationMessageResolver.class))).finish();
-    
+
     validators
       .stream()
+      .filter(validator -> getConstraintValidatorIface(validator).getParameterizedType().getTypeParameters()[0] instanceof MetaClass)
       .map(validator -> addDynamicValidator(bodyBlockBuilder, validator))
       .collect(Collectors.toCollection(() -> statements));
 
@@ -123,8 +124,10 @@ public class DynamicValidatorBodyGenerator extends AbstractBodyGenerator {
     bodyBlockBuilder.declaresInnerClass(new InnerClass(generatedValidatorBuilder.getClassDefinition()));
 
 
+    if (Arrays.stream(validator.getDeclaredMethods()).anyMatch(m -> m.getName().equals("initialize"))) {
+      validateMethod.append(loadVariable("this").invoke("initialize", annoImpl));
+    }
     validateMethod
-      .append(loadVariable("this").invoke("initialize", annoImpl))
       .append(if_(Bool.expr(loadVariable("this").invoke("isValid", loadVariable("value"), castTo(ConstraintValidatorContext.class, loadLiteral(null)))))
                 .append(invokeStatic(Collections.class, "emptySet").returnValue())
               .finish().else_()
